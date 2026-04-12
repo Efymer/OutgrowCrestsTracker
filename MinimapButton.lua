@@ -1,7 +1,7 @@
 local addonName, addon = ...
 
 local ICON_TEXTURE   = "Interface\\Icons\\Achievement_General"
-local BUTTON_RADIUS  = 80
+local BUTTON_RADIUS  = 104
 
 -- ------------------------------------------------------------------ button
 local button = CreateFrame("Button", "OutgrowCrestsTrackerMinimapBtn", Minimap)
