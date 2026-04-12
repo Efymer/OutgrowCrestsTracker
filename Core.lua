@@ -5,9 +5,12 @@ local eventFrame = CreateFrame("Frame")
 -- Query all equipment slot watermarks, filtering out irrelevant weapon slots
 function addon:GetSlotData()
     local slots = {}
+    if not C_ItemUpgrade or not C_ItemUpgrade.GetHighWatermarkForSlot then
+        return slots
+    end
     for i = 0, 16 do
-        local charWM, acctWM = C_ItemUpgrade.GetHighWatermarkForSlot(i)
-        if charWM and charWM > 0 then
+        local ok, charWM, acctWM = pcall(C_ItemUpgrade.GetHighWatermarkForSlot, i)
+        if ok and charWM and charWM > 0 then
             slots[#slots + 1] = {
                 slotIndex      = i,
                 name           = addon.Config.slotNames[i] or ("Slot " .. i),
@@ -17,26 +20,6 @@ function addon:GetSlotData()
         end
     end
     return slots
-end
-
--- Return the highest tier this ilvl has outgrown (or nil if below Adventurer)
-function addon:GetTierForIlvl(ilvl)
-    local best = nil
-    for _, achiev in ipairs(addon.Config.achievements) do
-        if ilvl >= achiev.ilvl then
-            best = achiev
-        end
-    end
-    return best
-end
-
--- Return r,g,b for the tier this ilvl belongs to
-function addon:GetTierColor(ilvl)
-    local tier = self:GetTierForIlvl(ilvl)
-    if tier then
-        return tier.color[1], tier.color[2], tier.color[3]
-    end
-    return 0.50, 0.50, 0.50
 end
 
 -- Initialize saved variables

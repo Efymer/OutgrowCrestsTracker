@@ -17,6 +17,13 @@ local CONTENT_W     = FRAME_WIDTH - PAD * 2
 local ICON_CHECK = "|A:common-icon-checkmark:14:14|a"
 local ICON_CROSS = "|A:common-icon-redx:14:14|a"
 
+local GREEN  = "00ff00"
+local RED    = "ff4444"
+local YELLOW = "ffcc00"
+local GRAY   = "888888"
+local WHITE  = "ffffff"
+local DIM    = "666666"
+
 -- ------------------------------------------------------------------ detail line pool
 local function GetOrCreateDetailLine(parent)
     detailCount = detailCount + 1
@@ -31,13 +38,13 @@ local function GetOrCreateDetailLine(parent)
     local left = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     left:SetPoint("LEFT", 4, 0)
     left:SetJustifyH("LEFT")
-    left:SetWidth(CONTENT_W * 0.48)
+    left:SetWidth(CONTENT_W * 0.45)
     left:SetWordWrap(false)
 
     local right = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     right:SetPoint("RIGHT", -4, 0)
     right:SetJustifyH("RIGHT")
-    right:SetWidth(CONTENT_W * 0.50)
+    right:SetWidth(CONTENT_W * 0.53)
     right:SetWordWrap(false)
 
     row.left  = left
@@ -182,7 +189,7 @@ function addon:RefreshDisplay()
     local y          = frame.contentTop
 
     -- pre-compute achievement status
-    local status = {}
+    local achStatus = {}
     local firstIncomplete = nil
     for i, achiev in ipairs(addon.Config.achievements) do
         local _, _, _, completed = GetAchievementInfo(achiev.id)
@@ -192,45 +199,47 @@ function addon:RefreshDisplay()
                 ready = ready + 1
             end
         end
-        status[i] = { completed = completed, ready = ready }
+        achStatus[i] = { completed = completed, ready = ready }
         if not completed and not firstIncomplete then
             firstIncomplete = i
         end
     end
 
-    -- auto-select first incomplete achievement if nothing picked yet
+    -- auto-select first incomplete achievement
     if not selectedIndex then
         selectedIndex = firstIncomplete or #addon.Config.achievements
     end
 
     -- ---- achievement rows -------------------------------------------
     for i, achiev in ipairs(addon.Config.achievements) do
-        local st  = status[i]
+        local st  = achStatus[i]
         local row = achievRows[i]
         row:ClearAllPoints()
         row:SetPoint("TOPLEFT", frame, "TOPLEFT", PAD, y)
 
-        -- icon
+        -- icon: green check or red X
         local icon = st.completed and ICON_CHECK or ICON_CROSS
 
-        -- name color
+        -- name color: green if done, white if next target, dim if future
         local nameHex
         if st.completed then
-            nameHex = "00ff00"
+            nameHex = GREEN
         elseif i == firstIncomplete then
-            nameHex = "ffffff"
+            nameHex = WHITE
         else
-            nameHex = "888888"
+            nameHex = DIM
         end
 
         row.left:SetText(string.format("%s  |cff%s%s|r", icon, nameHex, achiev.name))
 
-        -- right: threshold + count
-        local countHex = (st.ready >= totalSlots) and "00ff00" or "ffcc00"
-        row.right:SetText(string.format("|cff888888%d|r     |cff%s%d/%d|r",
-            achiev.ilvl, countHex, st.ready, totalSlots))
+        -- right: ilvl (green/red) + slot count
+        local ilvlHex = st.completed and GREEN or RED
+        local countHex = (st.ready >= totalSlots and totalSlots > 0) and GREEN or YELLOW
+        row.right:SetText(string.format(
+            "|cff%s%d|r     |cff%s%d/%d|r",
+            ilvlHex, achiev.ilvl, countHex, st.ready, totalSlots))
 
-        -- selection state
+        -- selection highlight
         if selectedIndex == i then
             local cr, cg, cb = achiev.color[1], achiev.color[2], achiev.color[3]
             row.bg:SetColorTexture(cr, cg, cb, 0.12)
@@ -256,7 +265,7 @@ function addon:RefreshDisplay()
 
     -- ---- selected achievement detail --------------------------------
     local selAchiev = addon.Config.achievements[selectedIndex]
-    local selStatus = status[selectedIndex]
+    local selSt     = achStatus[selectedIndex]
 
     -- header
     local header = GetOrCreateDetailLine(frame)
@@ -265,24 +274,32 @@ function addon:RefreshDisplay()
 
     local cr, cg, cb = selAchiev.color[1], selAchiev.color[2], selAchiev.color[3]
 
-    if selStatus.completed then
+    if selSt.completed then
         header.left:SetText(string.format(
-            "|cff%02x%02x%02x%s|r |cff888888(%d)|r  %s",
+            "|cff%02x%02x%02x%s|r |cff%s(%d)|r  %s",
             cr * 255, cg * 255, cb * 255,
-            selAchiev.tier, selAchiev.ilvl, ICON_CHECK))
-        header.right:SetText("|cff00ff00Completed|r")
+            selAchiev.tier, GRAY, selAchiev.ilvl, ICON_CHECK))
+        header.right:SetText(string.format("|cff%sCompleted|r", GREEN))
     else
-        local laggingCount = totalSlots - selStatus.ready
+        local laggingCount = totalSlots - selSt.ready
         header.left:SetText(string.format(
-            "|cffffcc00Slots below|r |cff%02x%02x%02x%s|r |cffffcc00(%d):|r",
-            cr * 255, cg * 255, cb * 255,
-            selAchiev.tier, selAchiev.ilvl))
-        header.right:SetText(string.format("|cffff6666%d remaining|r", laggingCount))
+            "|cff%sSlots below|r |cff%02x%02x%02x%s|r |cff%s(%d):|r",
+            YELLOW, cr * 255, cg * 255, cb * 255,
+            selAchiev.tier, YELLOW, selAchiev.ilvl))
+        header.right:SetText(string.format("|cff%s%d remaining|r", RED, laggingCount))
     end
     header:Show()
     y = y - LINE_HEIGHT
 
-    if not selStatus.completed then
+    if totalSlots == 0 then
+        local row = GetOrCreateDetailLine(frame)
+        row:SetPoint("TOPLEFT", frame, "TOPLEFT", PAD + 14, y)
+        row:SetHeight(DETAIL_HEIGHT)
+        row.left:SetText(string.format("|cff%sNo slot data available.|r", GRAY))
+        row.right:SetText("")
+        row:Show()
+        y = y - DETAIL_HEIGHT
+    elseif not selSt.completed then
         -- lagging slots sorted by watermark (worst first)
         local lagging = {}
         for _, slot in ipairs(slotData) do
@@ -298,13 +315,12 @@ function addon:RefreshDisplay()
                 row:SetPoint("TOPLEFT", frame, "TOPLEFT", PAD + 14, y)
                 row:SetHeight(DETAIL_HEIGHT)
 
-                row.left:SetText(string.format("|cffcccccc%s|r", slot.name))
+                row.left:SetText(string.format("|cff%s%s|r", RED, slot.name))
 
-                local r, g, b = addon:GetTierColor(slot.charWatermark)
                 local diff = selAchiev.ilvl - slot.charWatermark
                 row.right:SetText(string.format(
-                    "|cff%02x%02x%02x%d|r    |cffff6666+%d needed|r",
-                    r * 255, g * 255, b * 255, slot.charWatermark, diff))
+                    "|cff%s%d|r    |cff%s+%d needed|r",
+                    RED, slot.charWatermark, RED, diff))
 
                 row:Show()
                 y = y - DETAIL_HEIGHT
@@ -313,7 +329,7 @@ function addon:RefreshDisplay()
             local row = GetOrCreateDetailLine(frame)
             row:SetPoint("TOPLEFT", frame, "TOPLEFT", PAD + 14, y)
             row:SetHeight(DETAIL_HEIGHT)
-            row.left:SetText("|cff00ff00All slots meet the threshold!|r")
+            row.left:SetText(string.format("|cff%sAll slots meet the threshold!|r", GREEN))
             row.right:SetText("")
             row:Show()
             y = y - DETAIL_HEIGHT
@@ -333,39 +349,41 @@ function addon:RefreshDisplay()
     local allHeader = GetOrCreateDetailLine(frame)
     allHeader:SetPoint("TOPLEFT", frame, "TOPLEFT", PAD, y)
     allHeader:SetHeight(LINE_HEIGHT)
-    allHeader.left:SetText("|cffffcc00All Slots:|r")
-    allHeader.right:SetText("|cff888888Char   /   Acct|r")
+    allHeader.left:SetText(string.format("|cff%sAll Slots:|r", YELLOW))
+    allHeader.right:SetText("")
     allHeader:Show()
     y = y - LINE_HEIGHT
 
-    -- sort by slot index for natural equipment order
-    local sorted = {}
-    for i, slot in ipairs(slotData) do sorted[i] = slot end
-    table.sort(sorted, function(a, b) return a.slotIndex < b.slotIndex end)
-
-    for _, slot in ipairs(sorted) do
+    if totalSlots == 0 then
         local row = GetOrCreateDetailLine(frame)
         row:SetPoint("TOPLEFT", frame, "TOPLEFT", PAD + 14, y)
         row:SetHeight(DETAIL_HEIGHT)
-
-        -- color slot name based on whether it meets selected threshold
-        local nameHex = (slot.charWatermark >= selAchiev.ilvl) and "00ff00" or "cccccc"
-        row.left:SetText(string.format("|cff%s%s|r", nameHex, slot.name))
-
-        local r, g, b = addon:GetTierColor(slot.charWatermark)
-        local charText = string.format("|cff%02x%02x%02x%d|r",
-            r * 255, g * 255, b * 255, slot.charWatermark)
-
-        local acctText = ""
-        if slot.acctWatermark > 0 and slot.acctWatermark ~= slot.charWatermark then
-            local ar, ag, ab = addon:GetTierColor(slot.acctWatermark)
-            acctText = string.format("   /   |cff%02x%02x%02x%d|r",
-                ar * 255, ag * 255, ab * 255, slot.acctWatermark)
-        end
-
-        row.right:SetText(charText .. acctText)
+        row.left:SetText(string.format("|cff%sNo data — equip gear and reopen.|r", GRAY))
+        row.right:SetText("")
         row:Show()
         y = y - DETAIL_HEIGHT
+    else
+        -- sort by slot index for natural equipment order
+        local sorted = {}
+        for i, slot in ipairs(slotData) do sorted[i] = slot end
+        table.sort(sorted, function(a, b) return a.slotIndex < b.slotIndex end)
+
+        for _, slot in ipairs(sorted) do
+            local row = GetOrCreateDetailLine(frame)
+            row:SetPoint("TOPLEFT", frame, "TOPLEFT", PAD + 14, y)
+            row:SetHeight(DETAIL_HEIGHT)
+
+            local meets = slot.charWatermark >= selAchiev.ilvl
+            local color = meets and GREEN or RED
+            local icon  = meets and ICON_CHECK or ICON_CROSS
+
+            row.left:SetText(string.format("|cff%s%s|r", color, slot.name))
+            row.right:SetText(string.format(
+                "|cff%s%d|r  %s", color, slot.charWatermark, icon))
+
+            row:Show()
+            y = y - DETAIL_HEIGHT
+        end
     end
 
     -- ---- resize to fit content --------------------------------------
