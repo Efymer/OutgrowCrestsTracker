@@ -1,0 +1,10 @@
+package-as: OutgrowCrestsTracker
+
+changelog-file: CHANGELOG.md
+
+ignore:
+  - .github
+  - .claude
+  - CLAUDE.md
+  - README.md
+  - .gitignore

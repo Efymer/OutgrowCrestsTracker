@@ -6,6 +6,7 @@
 ## IconTexture: Interface\Icons\Achievement_General
 ## Category: Other
 ## SavedVariables: OutgrowCrestsTrackerDB
+## X-Curse-Project-ID: REPLACE_WITH_CURSEFORGE_ID
 
 Config.lua
 Core.lua
