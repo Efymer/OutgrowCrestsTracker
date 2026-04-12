@@ -2,10 +2,12 @@
 ## Title: Outgrow Crests Tracker
 ## Notes: Track gear progress toward Dawn achievements that unlock 50% crest discounts for alts.
 ## Author: Efymer
-## Version: 1.0.0
+## Version: 1.0.1
 ## IconTexture: Interface\Icons\Achievement_General
 ## Category: Other
+## SavedVariables: OutgrowCrestsTrackerDB
 
 Config.lua
 Core.lua
+MinimapButton.lua
 Display.lua

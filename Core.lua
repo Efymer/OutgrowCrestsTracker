@@ -39,9 +39,22 @@ function addon:GetTierColor(ilvl)
     return 0.50, 0.50, 0.50
 end
 
+-- Initialize saved variables
+local function InitDB()
+    if not OutgrowCrestsTrackerDB then
+        OutgrowCrestsTrackerDB = {}
+    end
+    local db = OutgrowCrestsTrackerDB
+    if not db.minimap then
+        db.minimap = { degrees = 220 }
+    end
+    addon.db = db
+end
+
 eventFrame:SetScript("OnEvent", function(_, event)
     if event == "PLAYER_LOGIN" then
-        -- Frame is created on first /outgrow
+        InitDB()
+        addon:InitMinimapButton()
     end
 end)
 eventFrame:RegisterEvent("PLAYER_LOGIN")
