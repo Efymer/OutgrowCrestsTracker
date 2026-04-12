@@ -42,8 +42,15 @@ addon.Config.achievements = {
     },
 }
 
+-- Weapon groups — achievement requires ANY one complete group to meet threshold
+addon.Config.weaponGroups = {
+    { 12 },       -- Two-Hand
+    { 13, 16 },   -- Main Hand + Off Hand (shield/caster offhand)
+    { 14, 15 },   -- Dual Wield
+}
+
 -- Enum.ItemRedundancySlot display names
--- Slots 12-16 are weapon variants; the API returns nil/0 for irrelevant ones
+-- Slots 12-16 are weapon variants; only the active group matters
 addon.Config.slotNames = {
     [0]  = "Head",
     [1]  = "Neck",
