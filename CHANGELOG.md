@@ -1,5 +1,9 @@
 # Outgrow Crests Tracker
 
+## [v1.0.3](https://github.com/Efymer/OutgrowCrestsTracker/tree/v1.0.3) (2026-04-22)
+
+- Update for World of Warcraft 12.0.5 — v1.0.3
+
 ## [v1.0.2](https://github.com/Efymer/OutgrowCrestsTracker/tree/v1.0.2) (2026-04-12)
 
 - Fix weapon group logic — only the active weapon config counts toward achievements — v1.0.2
