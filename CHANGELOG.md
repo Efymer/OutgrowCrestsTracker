@@ -1,8 +1,9 @@
 # Outgrow Crests Tracker
 
-## [v1.0.4](https://github.com/Efymer/OutgrowCrestsTracker/tree/v1.0.4) (2026-10-06)
+## [v1.1.0](https://github.com/Efymer/OutgrowCrestsTracker/tree/v1.1.0) (2026-10-06)
 
-- Update for World of Warcraft 12.1.0 — v1.0.4
+- Update for World of Warcraft 12.1.0 and Midnight Season 2 — v1.1.0
+- Now tracks the Season 2 "of the Mist" achievements (Adventurer 282, Veteran 295, Champion 308, Hero 321, Myth 331) — v1.1.0
 
 ## [v1.0.3](https://github.com/Efymer/OutgrowCrestsTracker/tree/v1.0.3) (2026-04-22)
 

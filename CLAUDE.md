@@ -28,19 +28,29 @@ Use this format for CHANGELOG.md entries:
 
 ## Addon Purpose
 
-Display per-slot gear upgrade progress toward the "X of the Dawn" crest discount achievements in Midnight Season 1. These achievements unlock a **50% crest cost discount for alts** (up from 33% in Dragonflight/TWW) and allow uptrading crests to the next tier.
+Display per-slot gear upgrade progress toward the current season's crest discount achievements. These achievements unlock a **50% crest cost discount for alts** (up from 33% in Dragonflight/TWW) and allow uptrading crests to the next tier. Update `Config.lua` each season.
 
-## Dawn Achievement Series
+## Mist Achievement Series (Season 2, Patch 12.1.0) — current
 
-All are Feats of Strength added in Patch 12.0.1. Each achievement fires when **every equipment slot** reaches the required item level high watermark.
+Feats of Strength. Thresholds come from each achievement's criteria tree (wago.tools Achievement / CriteriaTree / Criteria DB2). Myth is officially an *average* item level; the addon tracks it per slot.
 
 | Achievement            | ID    | Required iLvl | Crest Discount Unlocked         | Uptrade Unlock                          |
 |------------------------|-------|---------------|---------------------------------|-----------------------------------------|
-| Adventurer of the Dawn | 61809 | 237           | Adventurer track 50% off alts   | Adventurer Dawncrests -> Veteran        |
-| Veteran of the Dawn    | 42767 | 250           | Veteran track 50% off alts      | Veteran Dawncrests -> Champion          |
-| Champion of the Dawn   | 42768 | 263           | Champion track 50% off alts     | Champion Dawncrests -> Hero             |
-| Hero of the Dawn       | 42769 | 276           | Hero track 50% off alts         | Hero Dawncrests -> Myth                 |
-| Myth of the Dawn       | 42770 | 285           | Myth track 50% off alts         | (Final tier)                            |
+| Adventurer of the Mist | 62410 | 282           | Adventurer track 50% off alts   | Adventurer Mistcrests -> Veteran        |
+| Veteran of the Mist    | 62411 | 295           | Veteran track 50% off alts      | Veteran Mistcrests -> Champion          |
+| Champion of the Mist   | 62412 | 308           | Champion track 50% off alts     | Champion Mistcrests -> Hero             |
+| Hero of the Mist       | 62414 | 321           | Hero track 50% off alts         | Hero Mistcrests -> Myth                 |
+| Myth of the Mist       | 62416 | 331 (avg)     | Myth track 50% off alts         | (Final tier)                            |
+
+## Dawn Achievement Series (Season 1, Patch 12.0.1) — legacy
+
+| Achievement            | ID    | Required iLvl |
+|------------------------|-------|---------------|
+| Adventurer of the Dawn | 61809 | 237           |
+| Veteran of the Dawn    | 42767 | 250           |
+| Champion of the Dawn   | 42768 | 263           |
+| Hero of the Dawn       | 42769 | 276           |
+| Myth of the Dawn       | 42770 | 285 (avg)     |
 
 ## Midnight Upgrade System Changes
 
