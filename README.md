@@ -40,4 +40,4 @@ Click any achievement row to see the detailed per-slot breakdown for that tier.
 
 ## Requirements
 
-- World of Warcraft: Midnight (Patch 12.0.0+)
+- World of Warcraft: Midnight (Patch 12.1.0+, Season 2)
